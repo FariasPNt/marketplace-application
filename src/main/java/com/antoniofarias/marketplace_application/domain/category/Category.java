@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Category {
 
     @Id
-    private String Id;
+    private String id;
     private String title;
     private String description;
     private String ownerId;
