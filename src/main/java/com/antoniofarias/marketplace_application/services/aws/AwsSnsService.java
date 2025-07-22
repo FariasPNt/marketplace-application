@@ -10,12 +10,12 @@ public class AwsSnsService {
     AmazonSNS snsClient;
     Topic catalogTopic;
 
-    public AwsSnsService(AmazonSNS snsClient, @Qualifier("catalogEventsTopic") Topic catalogTopic){
+    public AwsSnsService(AmazonSNS snsClient, @Qualifier("catalogEventsTopic") Topic catalogTopic) {
         this.snsClient = snsClient;
         this.catalogTopic = catalogTopic;
     }
 
-    public void publish(MessageDTO message){
-        this.snsClient.publish(catalogTopic.getTopicArn(), message.message());
+    public void publish(String jsonMessage) {
+        this.snsClient.publish(catalogTopic.getTopicArn(), jsonMessage);
     }
 }

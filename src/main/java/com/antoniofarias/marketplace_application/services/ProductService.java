@@ -7,9 +7,12 @@ import com.antoniofarias.marketplace_application.domain.product.exceptions.Produ
 import com.antoniofarias.marketplace_application.repositories.ProductRepository;
 import com.antoniofarias.marketplace_application.services.aws.AwsSnsService;
 import com.antoniofarias.marketplace_application.services.aws.MessageDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductService {
@@ -17,21 +20,23 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final AwsSnsService snsService;
+    private final ObjectMapper objectMapper;
 
-    public ProductService(ProductRepository productRepository, CategoryService categoryService, AwsSnsService snsService){
+    public ProductService(ProductRepository productRepository, CategoryService categoryService, AwsSnsService snsService, ObjectMapper objectMapper){
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.snsService = snsService;
+        this.objectMapper = objectMapper;
     }
 
     public Product insert(ProductDTO productData){
         this.categoryService.getById(productData.categoryId())
                 .orElseThrow(CategoryNotFoundException::new);
-        Product newProduct = new Product(productData);
 
+        Product newProduct = new Product(productData);
         this.productRepository.save(newProduct);
 
-        this.snsService.publish(new MessageDTO(newProduct.toString()));
+        sendEvent("ProductCreated", newProduct.getOwnerId(), newProduct);
 
         return newProduct;
     }
@@ -56,7 +61,7 @@ public class ProductService {
 
         this.productRepository.save(product);
 
-        this.snsService.publish(new MessageDTO(product.toString()));
+        sendEvent("ProductUpdated", product.getOwnerId(), product);
 
         return product;
     }
@@ -65,5 +70,17 @@ public class ProductService {
         Product product = this.productRepository.findById(id)
                 .orElseThrow(ProductNotFoundException::new);
         this.productRepository.delete(product);
+
+        sendEvent("ProductDeleted", product.getOwnerId(), Map.of("id", product.getId()));
+    }
+
+    private void sendEvent(String eventType, String ownerId, Object data){
+        try{
+            MessageDTO message = new MessageDTO(eventType, ownerId, data);
+            String jsonMessage = objectMapper.writeValueAsString(message);
+            snsService.publish(jsonMessage);
+        } catch (JsonProcessingException e){
+            throw new RuntimeException("Erro ao serializar evento do produto para SNS", e);
+        }
     }
 }
