@@ -4,6 +4,8 @@ import com.antoniofarias.marketplace_application.domain.category.Category;
 import com.antoniofarias.marketplace_application.domain.category.CategoryDTO;
 import com.antoniofarias.marketplace_application.domain.category.exceptions.CategoryNotFoundException;
 import com.antoniofarias.marketplace_application.repositories.CategoryRepository;
+import com.antoniofarias.marketplace_application.services.aws.AwsSnsService;
+import com.antoniofarias.marketplace_application.services.aws.MessageDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,8 +16,11 @@ public class CategoryService {
 
     private CategoryRepository repository;
 
-    public CategoryService(CategoryRepository repository){
+    private final AwsSnsService snsService;
+
+    public CategoryService(CategoryRepository repository, AwsSnsService snsService){
         this.repository = repository;
+        this.snsService = snsService;
     }
 
     public List<Category> getAll(){
@@ -29,6 +34,7 @@ public class CategoryService {
     public Category insert(CategoryDTO categoryData){
         Category newCategory = new Category(categoryData);
         this.repository.save(newCategory);
+        this.snsService.publish(new MessageDTO(newCategory.toString()));
         return newCategory;
     }
 
@@ -37,7 +43,11 @@ public class CategoryService {
                 .orElseThrow(CategoryNotFoundException::new);
         if(!categoryData.title().isEmpty()) category.setTitle(categoryData.title());
         if(!categoryData.description().isEmpty()) category.setDescription(categoryData.description());
+
         this.repository.save(category);
+
+        this.snsService.publish(new MessageDTO(category.toString()));
+
         return category;
     }
 
