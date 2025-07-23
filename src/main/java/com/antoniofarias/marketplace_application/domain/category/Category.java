@@ -27,14 +27,7 @@ public class Category {
 
     @Override
     public String toString(){
-        JSONObject json = new JSONObject();
-        json.put("title", this.title);
-        json.put("description", this.description);
-        json.put("ownerId", this.ownerId);
-        json.put("id", this.id);
-        json.put("type", "category");
-
-        return json.toString();
+        return "Category{id='" + id + "', title='" + title + "'}";
     }
 
 }

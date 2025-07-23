@@ -31,16 +31,8 @@ public class Product {
     }
 
     @Override
-    public String toString(){
-        JSONObject json = new JSONObject();
-        json.put("title", this.title);
-        json.put("description", this.description);
-        json.put("ownerId", this.ownerId);
-        json.put("id", this.id);
-        json.put("categoryId", this.category);
-        json.put("price", this.price);
-        json.put("type", "product");
-
-        return json.toString();
+    public String toString() {
+        return "Product{id='" + id + "', title='" + title + "'}";
     }
+
 }
