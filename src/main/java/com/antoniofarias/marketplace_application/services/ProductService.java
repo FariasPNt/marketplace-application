@@ -52,7 +52,7 @@ public class ProductService {
         if(productData.categoryId() != null){
             this.categoryService.getById(productData.categoryId())
                     .orElseThrow(CategoryNotFoundException::new);
-            product.setCategory(productData.categoryId());
+            product.setCategoryId(productData.categoryId());
         }
 
         if(!productData.title().isEmpty()) product.setTitle(productData.title());

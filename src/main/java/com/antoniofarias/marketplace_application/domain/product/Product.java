@@ -20,14 +20,14 @@ public class Product {
     private String description;
     private String ownerId;
     private Integer price;
-    private String category;
+    private String categoryId;
 
     public Product(ProductDTO productData){
         this.title = productData.title();
         this.description = productData.description();
         this.ownerId = productData.ownerId();
         this.price = productData.price();
-        this.category = productData.categoryId();
+        this.categoryId = productData.categoryId();
     }
 
     @Override

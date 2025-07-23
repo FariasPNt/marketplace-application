@@ -14,7 +14,7 @@ public class AwsSnsConfig {
 
     @Value("${aws.region}")
     private String region;
-    @Value("${aws.acessKeyId}")
+    @Value("${aws.accessKeyId}")
     private String acessKeyId;
     @Value("${aws.secretKey}")
     private String secretKey;
