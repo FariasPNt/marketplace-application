@@ -17,11 +17,17 @@ Sincronização com a AWS para persistência de dados em arquivos e disparo de e
 Fluxo de Eventos na AWS
 
 Backend --> SNS["SNS (catalog-emit)"]
+
 SNS --> SQS_Catalog["SQS (catalog-queue)"]
+
 SNS --> SQS_Stock["SQS (stock-queue)"]
+
 SQS_Catalog --> Lambda_Catalog["Lambda (CatalogProcessor)"]
+
 SQS_Stock --> Lambda_Stock["Lambda (StockProcessor)"]
+
 Lambda_Catalog --> S3["S3 (catalog-prefix/)"]
+
 Lambda_Stock --> S3["S3 (stock-prefix/)"]
 
 ### ☁️ Componentes da AWS
