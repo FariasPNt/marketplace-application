@@ -2,61 +2,43 @@
 ## ☁️ Backend - Sistema de Estoque na Nuvem
 Este projeto é um backend moderno e escalável para gerenciamento de estoques. Desenvolvido com Java 21, integra-se a serviços da AWS para garantir distribuição de eventos, persistência externa e resiliência. Utiliza MongoDB como banco de dados NoSQL para flexibilidade no armazenamento.
 
-### 📦 Visão Geral
-A aplicação permite:
+### 🧪 Tecnologias
 
-Cadastro de categorias.
-
-Cadastro de produtos associados a uma categoria.
-
-Criação e controle de estoques, com quantidade e localização (depósito).
-
-Sincronização com a AWS para persistência de dados em arquivos e disparo de eventos.
+- **Java 21** – linguagem principal da aplicação
+- **Spring Boot** – framework para desenvolvimento de APIs REST
+- **MongoDB (NoSQL)** – banco de dados flexível e escalável
+- **AWS SNS (Simple Notification Service)** – notificação de eventos
+- **AWS SQS (Simple Queue Service)** – filas de mensagens assíncronas
+- **AWS Lambda** – processamento serverless baseado em eventos
+- **AWS S3 (Simple Storage Service)** – armazenamento estruturado em objetos JSON
 
 ### 🏗️ Arquitetura
-Fluxo de Eventos na AWS
 
-Backend --> SNS["SNS (catalog-emit)"]
+| Etapa                      | Origem                     | Destino                      |
+|---------------------------|----------------------------|------------------------------|
+| Emissão de Evento         | Backend                    | SNS (catalog-emit)          |
+| Distribuição de Eventos   | SNS                        | SQS (catalog-queue)         |
+|                           | SNS                        | SQS (stock-queue)           |
+| Processamento             | SQS (catalog-queue)        | Lambda (CatalogProcessor)   |
+|                           | SQS (stock-queue)          | Lambda (StockProcessor)     |
+| Armazenamento em Arquivo  | Lambda (CatalogProcessor)  | S3 (catalog-prefix/)        |
+|                           | Lambda (StockProcessor)    | S3 (stock-prefix/)          |
 
-SNS --> SQS_Catalog["SQS (catalog-queue)"]
+### 🔗 Endpoints da API
 
-SNS --> SQS_Stock["SQS (stock-queue)"]
-
-SQS_Catalog --> Lambda_Catalog["Lambda (CatalogProcessor)"]
-
-SQS_Stock --> Lambda_Stock["Lambda (StockProcessor)"]
-
-Lambda_Catalog --> S3["S3 (catalog-prefix/)"]
-
-Lambda_Stock --> S3["S3 (stock-prefix/)"]
-
-### ☁️ Componentes da AWS
-SNS (Simple Notification Service):
-Serviço usado para publicação que recebe eventos da aplicação (como criação ou exclusão de produtos e categorias) e os distribui para filas diferentes de acordo com o tipo de evento.
-
-SQS (Simple Queue Service):
-Fila resiliente que armazena os eventos publicados pelo SNS. Permite desacoplamento e reprocessamento em caso de falhas.
-
-AWS Lambda:
-Funções serverless que são acionadas automaticamente quando há uma nova mensagem na fila. Responsáveis por processar os dados e atualizar o armazenamento S3 com os catálogos ou os estoques.
-
-S3 (Simple Storage Service):
-Armazena os arquivos JSON dos catálogos e dos estoques, organizados por prefixos (catalog/, stock/) com base no ownerId.
-
-### 🧪 Tecnologias
-Java 21
-
-Spring Boot
-
-MongoDB (NoSQL) – flexível e altamente escalável
-
-AWS SNS – notificação de eventos
-
-AWS SQS – filas de mensagens
-
-AWS Lambda – processamento assíncrono
-
-AWS S3 – armazenamento de dados estruturados
+| Método | Endpoint                  | Descrição                                    |
+|--------|---------------------------|----------------------------------------------|
+| POST   | /categories               | Cadastrar uma nova categoria                 |
+| GET    | /categories               | Listar todas as categorias                   |
+| PUT    | /categories/{id}          | Atualizar uma categoria por ID               |
+| DELETE | /categories/{id}          | Deletar uma categoria por ID                 |
+| POST   | /products                 | Cadastrar um novo produto                    |
+| GET    | /products                 | Listar todos os produtos                     |
+| PUT    | /products/{id}            | Atualizar um produto por ID                  |
+| DELETE | /products/{id}            | Deletar um produto por ID                    |
+| POST   | /stocks/init              | Criar estoque para um produto                |
+| POST   | /stocks/entry             | Registrar entrada de produto em estoque      |
+| POST   | /stocks/exit              | Registrar saída de produto em estoque        |
 
 🚀 Como executar localmente
 Clone o repositório:
@@ -71,14 +53,24 @@ Configure as credenciais da AWS (via ~/.aws/credentials ou variáveis de ambient
 
 ### 📂 Organização do Projeto
 
+A estrutura do projeto foi organizada de forma modular e de fácil manutenção:
+
+### 📂 Organização do Projeto
+
+```text
 src/
-├── controller/
-├── domain/
-├── dto/
-├── repository/
-├── service/
-├── config/
-AWS Lambdas são separadas em um repositório Node.js com estrutura modular (catálogo e estoque).
+├── config/        # Configurações gerais da aplicação (MongoDB, AWS, etc.)
+├── controller/    # Camada responsável pelas requisições HTTP (REST Controllers)
+├── domain/        # Entidades de domínio (modelos principais)
+├── dto/           # Objetos de transferência de dados (Data Transfer Objects)
+├── repository/    # Interfaces de acesso ao banco de dados (MongoRepository)
+├── service/       # Lógica de negócio e regras da aplicação
+````
+
+> ⚙️ As funções AWS Lambda foram desenvolvidas separadamente em um repositório Node.js, com módulos independentes para:
+> - 📁 **Catálogo** (`CatalogProcessor`)
+> - 📁 **Estoque** (`StockProcessor`)
+
 
 ### 📈 Próximas melhorias
 Autenticação com JWT
@@ -86,8 +78,6 @@ Autenticação com JWT
 Dashboards de inventário com gráficos
 
 Integração com DynamoDB como alternativa ao S3
-
-Monitoramento com CloudWatch
 
 ### 🧑‍💻 Autor
 Repositório mantido por Antonio Farias.
