@@ -50,7 +50,7 @@ https://github.com/FariasPNt/stock-application
 Configure o MongoDB (local ou Atlas) no application.properties.
 
 Configure as credenciais da AWS (via ~/.aws/credentials ou variáveis de ambiente).
-Ou crie o arquivo .env e adicione as várias ao Docker
+Ou crie o arquivo .env e adicione ao Docker
 
 ### 📂 Organização do Projeto
 
