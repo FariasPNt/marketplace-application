@@ -44,18 +44,17 @@ Este projeto é um backend moderno e escalável para gerenciamento de estoques. 
 Clone o repositório:
 
 ```
-git clone https://github.com/seu-usuario/sistema-estoque-cloud.git
+https://github.com/FariasPNt/stock-application
 ```
 
 Configure o MongoDB (local ou Atlas) no application.properties.
 
 Configure as credenciais da AWS (via ~/.aws/credentials ou variáveis de ambiente).
+Ou crie o arquivo .env e adicione as várias ao Docker
 
 ### 📂 Organização do Projeto
 
 A estrutura do projeto foi organizada de forma modular e de fácil manutenção:
-
-### 📂 Organização do Projeto
 
 ```text
 src/
